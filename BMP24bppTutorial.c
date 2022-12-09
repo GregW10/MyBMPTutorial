@@ -64,11 +64,6 @@ typedef struct bmp_info_header {
 /* this tells the compiler to revert back to its default setting for how structs are packed */
 #pragma pack(pop)
 
-/* CAN BE IGNORED - this function simply tests whether a given pixel lies within the bounds of the image */
-static inline bool contains(pnt pixel, dim dims) {
-	return pixel.x < dims.width && pixel.y < dims.height; // no need to check for >= 0 since unsigned
-}
-
 /* CAN BE IGNORED - this is the function for filling the entire background of the BMP with a given colour */
 int fill_background(struct color **arr, struct color col, dim dims) {
 	if (!arr || !*arr)
@@ -125,7 +120,7 @@ int main() {
 	/* CAN BE IGNORED */
 	dim image_dims = {width, height};
 	
-	/* Padding is important part of BMP generation. Pixel data in BMPs are stored as rows (i.e., the data for a single row a
+	/* Padding is an important part of BMP generation. Pixel data in BMPs are stored as rows (i.e., the data for a single row is
 	 * contiguous in memory), and each row must end on a 4-byte boundary. I.e., the starting address of the first byte in the
 	 * first row must be a multiple of 4. Thus, if the width of the BMP is not a multiple of 4, a certain number of padding
 	 * bytes will have to be added to the end of each row to ensure it ends at a 4-byte boundary. This is calculated using the
@@ -240,7 +235,7 @@ int main() {
 		/* the below line reads: write the cpy array - with an element size of "sizeof(color)" and number of elements
 		 * equal to width - to the file represented by the file pointer "fp" */
 		fwrite(*cpy, sizeof(clr), width, fp);
-		fwrite(pad, sizeof(unsigned char), padding, fp); // this does nothing if pad == 0
+		fwrite(pad, sizeof(unsigned char), padding, fp); // this does nothing if padding == 0
 		/* here we free the memory for the row */
 		free(*cpy);
 	}
@@ -249,7 +244,7 @@ int main() {
 	
 	/* I/O for a BMP would be faster if all the data were stored in a single pointer (i.e., contiguously) - but this makes accessing
 	 * each pixel slightly more complicated, especially since padding bytes are included in the single contiguous array - this
-	 * approach would be better, however, for reading and writing many BMP files at once */
+	 * approach would be better, however, for reading and writing many BMP files at once, and for faster access to pixels */
 	
 	/* here we print the total size of the BMP file written */
 	printf("File size: %zu\n", ftell(fp)); // the position of the file pointer at the end is equal to the file size
